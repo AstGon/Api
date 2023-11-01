@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Union
 
 
 
@@ -149,3 +150,14 @@ def authenticate_user(email: str):
         return {"user_type": "alumno"}
     else:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+@app.get("/users/{email}", response_model=Union[Professor, Student])
+def get_user_by_email(email: str):
+    # Intenta buscar al usuario en las bases de datos de profesores y estudiantes
+    if email in professors_db:
+        return professors_db[email]
+    elif email in students_db:
+        return students_db[email]
+
+    # Si el correo electrónico no coincide con ningún usuario, devuelve un error 404
+    raise HTTPException(status_code=404, detail="Usuario no encontrado")
