@@ -23,22 +23,29 @@ students_db = {}
 class User(BaseModel):
     email: str
     password: str
- 
 
-class Section(BaseModel):
+class Clase(BaseModel):
     seccion: str
     horario_inicio: str
     horario_fin: str
 
-class Professor(User):
+class Materia(BaseModel):
+    id: str
+    nombre: str
+    secciones: List[Clase]
+
+class Professor(BaseModel):
+    email: str
+    password: str
     nombre: str
     apellido: str
-    materias: List[str]
-    secciones: List[Section]
+    materias: List[Materia]
 
-class Student(User):
+class Student(BaseModel):
+    email: str
+    password: str
     nombre: str
-    apellido: str   
+    apellido: str
     materias_asistencia: List[str]
 
 
@@ -48,31 +55,71 @@ professors_db["juan@gmail.com"] = Professor(
     apellido="González",
     email="juan@gmail.com",
     password="password123",
-    materias=["Matemáticas", "Física"],
-    secciones=[
-        Section(seccion="A", horario_inicio="08:00", horario_fin="10:00"),
-        Section(seccion="B", horario_inicio="10:15", horario_fin="12:15")
+    materias=[
+        Materia(
+            id="5",
+            nombre="Historia",
+            secciones=[
+                Clase(seccion="A", horario_inicio="09:30", horario_fin="11:00"),
+                Clase(seccion="B", horario_inicio="11:15", horario_fin="12:45")
+            ]
+        ),
+        Materia(
+            id="6",
+            nombre="Literatura",
+            secciones=[
+                Clase(seccion="X", horario_inicio="14:00", horario_fin="15:30")
+            ]
+        )
     ]
 )
 
-students_db["maria@gmail.com"] = Student(
+professors_db["maria@gmail.com"] = Professor(
     nombre="María",
     apellido="Pérez",
     email="maria@gmail.com",
     password="password456",
-    materias_asistencia=["Matemáticas", "Física"]
+    materias=[
+        Materia(
+            id="2",
+            nombre="Matemáticas",
+            secciones=[
+                Clase(seccion="A", horario_inicio="08:00", horario_fin="10:00"),
+                Clase(seccion="B", horario_inicio="10:15", horario_fin="12:15")
+            ]
+        ),
+        Materia(
+            id="1",
+            nombre="Física",
+            secciones=[
+                Clase(seccion="X", horario_inicio="13:30", horario_fin="15:30")
+            ]
+        )
+    ]
 )    
 
-# Ingresar más datos de ejemplo para profesores
+
 professors_db["ana@gmail.com"] = Professor(
     nombre="Ana",
     apellido="López",
     email="ana@gmail.com",
     password="password789",
-    materias=["Historia", "Literatura"],
-    secciones=[
-        Section(seccion="A", horario_inicio="09:30", horario_fin="11:00"),
-        Section(seccion="B", horario_inicio="11:15", horario_fin="12:45")
+    materias=[
+        Materia(
+            id="3",
+            nombre="Web",
+            secciones=[
+                Clase(seccion="A", horario_inicio="08:00", horario_fin="10:00"),
+                Clase(seccion="B", horario_inicio="10:15", horario_fin="12:15")
+            ]
+        ),
+        Materia(
+            id="4",
+            nombre="App",
+            secciones=[
+                Clase(seccion="X", horario_inicio="13:30", horario_fin="15:30")
+            ]
+        )
     ]
 )
 
@@ -82,7 +129,7 @@ students_db["carlos@gmail.com"] = Student(
     apellido="Martínez",
     email="carlos@gmail.com",
     password="password101",
-    materias_asistencia=["Historia", "Matemáticas"]
+    materias_asistencia=["2", "3"]
 )
 
 students_db["laura@gmail.com"] = Student(
@@ -90,7 +137,7 @@ students_db["laura@gmail.com"] = Student(
     apellido="Gómez",
     email="laura@gmail.com",
     password="password202",
-    materias_asistencia=["Literatura", "Física"]
+    materias_asistencia=["1", "4"]
 )
 
 
