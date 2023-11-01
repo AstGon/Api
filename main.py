@@ -1,28 +1,43 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],  # Reemplaza con la URL de tu aplicación Angular
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 professors_db = {}
 students_db = {}
 
-class UserBase(BaseModel):
-    nombre: str
-    apellido: str
-    correo: str
-    contraseña: str
+class User(BaseModel):
+    email: str
+    password: str
+ 
 
 class Section(BaseModel):
     seccion: str
     horario_inicio: str
     horario_fin: str
 
-class Professor(UserBase):
+class Professor(User):
+    nombre: str
+    apellido: str
     materias: List[str]
     secciones: List[Section]
 
-class Student(UserBase):
+class Student(User):
+    nombre: str
+    apellido: str   
     materias_asistencia: List[str]
 
 
@@ -30,8 +45,8 @@ class Student(UserBase):
 professors_db["juan@gmail.com"] = Professor(
     nombre="Juan",
     apellido="González",
-    correo="juan@gmail.com",
-    contraseña="password123",
+    email="juan@gmail.com",
+    password="password123",
     materias=["Matemáticas", "Física"],
     secciones=[
         Section(seccion="A", horario_inicio="08:00", horario_fin="10:00"),
@@ -42,8 +57,8 @@ professors_db["juan@gmail.com"] = Professor(
 students_db["maria@gmail.com"] = Student(
     nombre="María",
     apellido="Pérez",
-    correo="maria@gmail.com",
-    contraseña="password456",
+    email="maria@gmail.com",
+    password="password456",
     materias_asistencia=["Matemáticas", "Física"]
 )    
 
@@ -51,8 +66,8 @@ students_db["maria@gmail.com"] = Student(
 professors_db["ana@gmail.com"] = Professor(
     nombre="Ana",
     apellido="López",
-    correo="ana@gmail.com",
-    contraseña="password789",
+    email="ana@gmail.com",
+    password="password789",
     materias=["Historia", "Literatura"],
     secciones=[
         Section(seccion="A", horario_inicio="09:30", horario_fin="11:00"),
@@ -64,35 +79,35 @@ professors_db["ana@gmail.com"] = Professor(
 students_db["carlos@gmail.com"] = Student(
     nombre="Carlos",
     apellido="Martínez",
-    correo="carlos@gmail.com",
-    contraseña="password101",
+    email="carlos@gmail.com",
+    password="password101",
     materias_asistencia=["Historia", "Matemáticas"]
 )
 
 students_db["laura@gmail.com"] = Student(
     nombre="Laura",
     apellido="Gómez",
-    correo="laura@gmail.com",
-    contraseña="password202",
+    email="laura@gmail.com",
+    password="password202",
     materias_asistencia=["Literatura", "Física"]
 )
 
 
 @app.post("/professors/", response_model=Professor)
 def create_professor(professor: Professor):
-    professors_db[professor.correo] = professor
+    professors_db[professor.email] = professor
     return professor
 
-@app.get("/professors/{correo}", response_model=Professor)
-def read_professor(correo: str):
-    if correo in professors_db:
-        return professors_db[correo]
+@app.get("/professors/{email}", response_model=Professor)
+def read_professor(email: str):
+    if email in professors_db:
+        return professors_db[email]
     raise HTTPException(status_code=404, detail="Professor not found")
 
-@app.get("/professors/{correo}/materias", response_model=List[str])
-def get_professor_materias(correo: str):
-    if correo in professors_db:
-        professor = professors_db[correo]
+@app.get("/professors/{email}/materias", response_model=List[str])
+def get_professor_materias(email: str):
+    if email in professors_db:
+        professor = professors_db[email]
         return professor.materias
     raise HTTPException(status_code=404, detail="Professor not found")
 
@@ -101,3 +116,36 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
+@app.post("/authenticate/")
+def authenticate_user(user_info: User):
+    if user_info.correo in professors_db:
+        return {"user_type": "profesor"}
+    elif user_info.correo in students_db:
+        return {"user_type": "alumno"}
+    else:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+@app.post("/login")
+async def login(user: User):
+    # Verifica si las credenciales coinciden con los valores en la base de datos de ejemplo
+    if user.email in professors_db:
+        professor = professors_db[user.email]
+        if professor.password == user.password:
+            return {"success": True, "message": "Inicio de sesión exitoso", "email": user.email, "user_type": "profesor"}
+    
+    elif user.email in students_db:
+        student = students_db[user.email]
+        if student.password == user.password:
+            return {"success": True, "message": "Inicio de sesión exitoso", "email": user.email, "user_type": "alumno"}
+    
+    # Si las credenciales no son válidas, devuelve un error
+    return {"success": False, "message": "Credenciales incorrectas"}
+
+@app.get("/authenticate/")
+def authenticate_user(email: str):
+    if email in professors_db:
+        return {"user_type": "profesor"}
+    elif email in students_db:
+        return {"user_type": "alumno"}
+    else:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
