@@ -159,20 +159,7 @@ def get_professor_materias(email: str):
         return professor.materias
     raise HTTPException(status_code=404, detail="Professor not found")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
 
-
-@app.post("/authenticate/")
-def authenticate_user(user_info: User):
-    if user_info.correo in professors_db:
-        return {"user_type": "profesor"}
-    elif user_info.correo in students_db:
-        return {"user_type": "alumno"}
-    else:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
 @app.post("/login")
 async def login(user: User):
     # Verifica si las credenciales coinciden con los valores en la base de datos de ejemplo
@@ -198,6 +185,7 @@ def authenticate_user(email: str):
     else:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+
 @app.get("/users/{email}", response_model=Union[Professor, Student])
 def get_user_by_email(email: str):
     # Intenta buscar al usuario en las bases de datos de profesores y estudiantes
@@ -208,3 +196,7 @@ def get_user_by_email(email: str):
 
     # Si el correo electrónico no coincide con ningún usuario, devuelve un error 404
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
