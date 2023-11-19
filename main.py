@@ -10,12 +10,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],  # Reemplaza con la URL de tu aplicación Angular
+    allow_origins=["https://localhost:4200","https://localhost","https://24tpg1hl-8000.brs.devtunnels.ms/"],  # Cambia a tu origen específico
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
-
 
 professors_db = {}
 students_db = {}
@@ -176,7 +175,7 @@ async def login(user: User):
     # Si las credenciales no son válidas, devuelve un error
     return {"success": False, "message": "Credenciales incorrectas"}
 
-@app.get("/authenticate/")
+@app.get("/authenticate")
 def authenticate_user(email: str):
     if email in professors_db:
         return {"user_type": "profesor"}
