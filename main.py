@@ -8,14 +8,18 @@ from typing import Union
 
 app = FastAPI()
 
+
+origins = [
+    "http://localhost",
+    "http://localhost:4200",  # Reemplaza con la URL donde se ejecuta tu aplicación Angular en desarrollo
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://localhost:4200","https://localhost","https://24tpg1hl-8000.brs.devtunnels.ms/"],  # Cambia a tu origen específico
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
-
 professors_db = {}
 students_db = {}
 
@@ -141,18 +145,18 @@ students_db["laura@gmail.com"] = Student(
 
 
 @app.post("/professors/", response_model=Professor)
-def create_professor(professor: Professor):
+async def create_professor(professor: Professor):
     professors_db[professor.email] = professor
     return professor
 
 @app.get("/professors/{email}", response_model=Professor)
-def read_professor(email: str):
+async def read_professor(email: str):
     if email in professors_db:
         return professors_db[email]
     raise HTTPException(status_code=404, detail="Professor not found")
 
 @app.get("/professors/{email}/materias", response_model=List[str])
-def get_professor_materias(email: str):
+async def get_professor_materias(email: str):
     if email in professors_db:
         professor = professors_db[email]
         return professor.materias
@@ -176,7 +180,7 @@ async def login(user: User):
     return {"success": False, "message": "Credenciales incorrectas"}
 
 @app.get("/authenticate")
-def authenticate_user(email: str):
+async def authenticate_user(email: str):
     if email in professors_db:
         return {"user_type": "profesor"}
     elif email in students_db:
@@ -186,7 +190,7 @@ def authenticate_user(email: str):
 
 
 @app.get("/users/{email}", response_model=Union[Professor, Student])
-def get_user_by_email(email: str):
+async def get_user_by_email(email: str):
     # Intenta buscar al usuario en las bases de datos de profesores y estudiantes
     if email in professors_db:
         return professors_db[email]
