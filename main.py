@@ -9,16 +9,12 @@ from typing import Union
 app = FastAPI()
 
 
-origins = [
-    "http://localhost",
-    "http://localhost:4200",  # Reemplaza con la URL donde se ejecuta tu aplicación Angular en desarrollo
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["https://localhost:4200","https://localhost","https://24tpg1hl-8000.brs.devtunnels.ms/"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Especifica los métodos que permites
+    allow_headers=["*"],  # O especifica los encabezados permitidos
 )
 professors_db = {}
 students_db = {}
