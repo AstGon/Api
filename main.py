@@ -140,10 +140,7 @@ students_db["laura@gmail.com"] = Student(
 )
 
 
-@app.post("/professors/", response_model=Professor)
-async def create_professor(professor: Professor):
-    professors_db[professor.email] = professor
-    return professor
+
 
 @app.get("/professors/{email}", response_model=Professor)
 async def read_professor(email: str):
