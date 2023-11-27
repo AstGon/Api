@@ -13,7 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Especifica los métodos que permites
+    allow_methods=["GET", "POST", "OPTIONS"],  # Ajusta según tus necesidades
     allow_headers=["*"],  # O especifica los encabezados permitidos
 )
 professors_db = {}
